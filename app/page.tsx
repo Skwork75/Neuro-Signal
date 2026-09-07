@@ -35,7 +35,7 @@ export default function Home() {
           <span className="flex size-9 items-center justify-center rounded-lg bg-indigo-600 text-white">
             <Brain className="size-5" />
           </span>
-          MindJournal AI
+          NeuroSignal
         </Link>
         <div className="flex items-center gap-2">
           <Link
@@ -62,7 +62,7 @@ export default function Home() {
             Understand Your Emotional Health
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600">
-            Write freely. MindJournal AI reads the emotional signal in your words and
+            Write freely. NeuroSignal reads the emotional signal in your words and
             helps you notice stress, risk, and what you need next — without replacing
             professional care.
           </p>
@@ -102,8 +102,8 @@ export default function Home() {
         </section>
 
         <div className="mt-12 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-center text-sm text-amber-900">
-          MindJournal AI is not a medical diagnosis tool. If you are in crisis, call or
-          text 988, or contact a licensed professional.
+          NeuroSignal is not a medical diagnosis tool. If you are in crisis, call 14416,
+          or contact a licensed professional.
         </div>
       </main>
     </div>

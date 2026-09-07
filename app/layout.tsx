@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "MindJournal AI",
+  title: "NeuroSignal",
   description: "Understand your emotional health with private AI-powered journaling.",
 };
 

@@ -173,7 +173,7 @@ export default function NewJournalPage() {
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-900">
             <p className="font-medium">You do not have to go through this alone.</p>
             <p className="mt-2">
-              If you are in crisis in the US, call or text <strong>988</strong>. You can
+              If you are in crisis, call <strong>14416</strong>. You can
               also text HOME to <strong>741741</strong> to reach the Crisis Text Line.
             </p>
           </div>

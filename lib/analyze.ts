@@ -132,7 +132,7 @@ export async function analyzeJournalContent(content: string): Promise<AnalysisRe
   const recommendations = crisisDetected
     ? [
         "Reach out to someone you trust right now.",
-        "If you are in crisis, call or text 988 in the US.",
+        "If you are in crisis, call 14416.",
         "You can also text HOME to 741741 for the Crisis Text Line.",
       ]
     : [

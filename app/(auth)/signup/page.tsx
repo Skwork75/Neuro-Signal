@@ -23,23 +23,27 @@ export default function SignupPage() {
     setError("");
     setLoading(true);
 
-    const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-      },
-    });
+    try {
+      const supabase = createClient();
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+        },
+      });
 
-    setLoading(false);
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
 
-    if (signUpError) {
-      setError(signUpError.message);
-      return;
+      setSuccess(true);
+    } catch {
+      setError("Could not connect to Supabase. Check your Supabase URL and restart the dev server.");
+    } finally {
+      setLoading(false);
     }
-
-    setSuccess(true);
   }
 
   if (success) {
@@ -132,7 +136,7 @@ export default function SignupPage() {
         </div>
 
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          MindJournal AI is not a medical diagnosis tool and does not replace professional
+          NeuroSignal is not a medical diagnosis tool and does not replace professional
           mental health care.
         </div>
 

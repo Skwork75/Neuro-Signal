@@ -12,7 +12,7 @@ export default function AuthLayout({
           <span className="mb-3 flex size-12 items-center justify-center rounded-xl bg-indigo-500">
             <Brain className="size-6" />
           </span>
-          <h1 className="text-2xl font-semibold">MindJournal AI</h1>
+          <h1 className="text-2xl font-semibold">NeuroSignal</h1>
           <p className="mt-1 text-sm text-indigo-100">
             A private space to write, reflect, and understand your emotions.
           </p>
