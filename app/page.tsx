@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, Brain, Heart, Shield, TrendingUp } from "lucide-react";
+import { ArrowRight, Brain, Heart, Shield, Sparkles, TrendingUp } from "lucide-react";
+import { BrandLogo } from "@/components/brand/logo";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -7,7 +8,7 @@ import { cn } from "@/lib/utils";
 const features = [
   {
     title: "AI Analysis",
-    description: "Turn each journal entry into emotion, stress, and risk insights in seconds.",
+    description: "Turn each journal entry into emotion and stress insights in seconds.",
     icon: Brain,
   },
   {
@@ -29,14 +30,9 @@ const features = [
 
 export default function Home() {
   return (
-    <div className="min-h-full bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-full bg-[#f5f8f6]">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-        <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-indigo-600 text-white">
-            <Brain className="size-5" />
-          </span>
-          NeuroSignal
-        </Link>
+        <Link href="/" aria-label="NeuroSignal home"><BrandLogo /></Link>
         <div className="flex items-center gap-2">
           <Link
             href="/login"
@@ -54,39 +50,37 @@ export default function Home() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-6 pb-16">
-        <section className="mx-auto max-w-3xl py-16 text-center sm:py-24">
-          <p className="mb-4 text-sm font-medium tracking-wide text-indigo-600 uppercase">
-            Private mental health journaling
-          </p>
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-6xl">
-            Understand Your Emotional Health
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600">
-            Write freely. NeuroSignal reads the emotional signal in your words and
-            helps you notice stress, risk, and what you need next — without replacing
-            professional care.
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/signup"
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "h-11 bg-indigo-600 px-5 text-white hover:bg-indigo-500",
-              )}
-            >
-              Get Started
-              <ArrowRight className="size-4" />
-            </Link>
-            <Link
-              href="/login"
-              className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11 px-5")}
-            >
-              Sign In
-            </Link>
+        <section className="relative overflow-hidden rounded-[2rem] border border-emerald-100 bg-emerald-950 px-6 py-16 text-white shadow-2xl shadow-emerald-950/15 sm:px-14 sm:py-24">
+          <div className="relative z-10 max-w-2xl">
+            <p className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-emerald-200"><Sparkles className="size-4" />A private space to notice</p>
+            <h1 className="text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">Make sense of the days you are living.</h1>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-emerald-50/75">
+              Write freely. NeuroSignal helps you spot emotional patterns, understand what you may need, and choose one small next step.
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-start gap-3 sm:flex-row">
+              <Link
+                href="/signup"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "h-11 bg-amber-300 px-5 text-emerald-950 hover:bg-amber-200",
+                )}
+              >
+                Get Started
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/login"
+                className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11 border-emerald-700 px-5 text-white hover:bg-emerald-900")}
+              >
+                Sign In
+              </Link>
+            </div>
           </div>
+          <div className="pointer-events-none absolute -right-20 -bottom-40 size-[34rem] rounded-full border-[70px] border-emerald-800/60" />
+          <div className="pointer-events-none absolute top-12 right-20 hidden h-28 w-28 rounded-full border border-amber-200/40 sm:block" />
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
             <Card key={feature.title} className="bg-white/80 shadow-sm">
               <CardHeader>
@@ -102,8 +96,8 @@ export default function Home() {
         </section>
 
         <div className="mt-12 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-center text-sm text-amber-900">
-          NeuroSignal is not a medical diagnosis tool. If you are in crisis, call 14416,
-          or contact a licensed professional.
+          NeuroSignal is not a medical diagnosis tool. If you may be in immediate danger,
+          call your local emergency number or contact a licensed professional.
         </div>
       </main>
     </div>

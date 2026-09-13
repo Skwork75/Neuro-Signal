@@ -17,9 +17,8 @@ export default function DisclaimerPage() {
           healthcare professional.
         </p>
         <p className="mt-4 text-sm leading-6 text-slate-600">
-          If you may hurt yourself or someone else, call <strong>14416</strong> or text
-          <strong>HOME</strong> to <strong>741741</strong>. If you are
-          in immediate danger, contact local emergency services.
+          If you may hurt yourself or someone else, call your local emergency number now.
+          You can find confidential, local crisis support at <strong>findahelpline.com</strong>.
         </p>
         <Link href="/" className={cn(buttonVariants(), "mt-6 bg-indigo-600 text-white hover:bg-indigo-500")}>
           Go back

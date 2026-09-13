@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NeuroSignal
 
-## Getting Started
+A private, AI-assisted journaling app built with Next.js, Supabase, and Hugging Face inference. It helps people reflect on emotional language; it is not a diagnostic or crisis service.
 
-First, run the development server:
+## Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Next.js App Router** serves the UI, authenticated dashboard, and server-side API routes.
+- **Supabase Auth + Postgres** stores entries and one analysis per entry. Row-level security ensures each user can only read and change their own data.
+- **`/api/journals`** validates and saves an entry.
+- **`/api/analyze`** verifies ownership, runs the server-only analysis pipeline, and upserts its result.
+- **Hugging Face** uses `j-hartmann/emotion-english-distilroberta-base` by default. If it is unavailable, the app uses a limited local keyword fallback so writing never fails.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install dependencies with `npm install`.
+2. Create `.env.local` with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=your-project-url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   HUGGINGFACE_API_KEY=your-hugging-face-token
+   # Optional: override the default emotion-classification model
+   HUGGINGFACE_EMOTION_MODEL=j-hartmann/emotion-english-distilroberta-base
+   ```
 
-## Learn More
+3. Run [`supabase/schema.sql`](supabase/schema.sql) once in the Supabase SQL editor.
+4. Configure Supabase Auth redirect URLs for `http://localhost:3000/api/auth/callback` and the matching production callback URL.
+5. Start the app with `npm run dev`.
 
-To learn more about Next.js, take a look at the following resources:
+## Safety notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The app does not infer imminent danger from ordinary sadness or stress. Crisis language is handled separately with an immediate-support message. If someone may act on thoughts of self-harm, contact local emergency services or find regional support through [Find A Helpline](https://findahelpline.com/).

@@ -7,12 +7,15 @@ import {
   Lightbulb,
   Loader2,
   Lock,
+  Sparkles,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { barColorClass, EMOTION_EMOJI, levelBadgeClass } from "@/lib/journal";
 import type { AnalysisResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -33,6 +36,13 @@ export default function NewJournalPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [reflectionAnswer, setReflectionAnswer] = useState("");
+  const [reflectionSaved, setReflectionSaved] = useState(false);
+  const [reflectionLoading, setReflectionLoading] = useState(false);
+  const [energy, setEnergy] = useState(0);
+  const [event, setEvent] = useState("");
+  const [need, setNeed] = useState("");
+  const [action, setAction] = useState("");
 
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
@@ -40,10 +50,39 @@ export default function NewJournalPage() {
     setContent("");
     setError("");
     setResult(null);
+    setReflectionAnswer("");
+    setReflectionSaved(false);
+    setEnergy(0);
+    setEvent("");
+    setNeed("");
+    setAction("");
   }
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function saveReflection(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setReflectionLoading(true);
+    try {
+      const response = await fetch("/api/journals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `Reflection question: ${result?.reflectionQuestion}\n\nMy response: ${reflectionAnswer.trim()}`,
+          checkIn: { helped: true },
+        }),
+      });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Could not save your reflection.");
+      setReflectionSaved(true);
+      setReflectionAnswer("");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not save your reflection.");
+    } finally {
+      setReflectionLoading(false);
+    }
+  }
+
+  async function onSubmit(formEvent: React.FormEvent<HTMLFormElement>) {
+    formEvent.preventDefault();
     setError("");
     setLoading(true);
 
@@ -51,7 +90,15 @@ export default function NewJournalPage() {
       const journalResponse = await fetch("/api/journals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({
+          content,
+          checkIn: {
+            ...(energy ? { energy } : {}),
+            ...(event.trim() ? { event: event.trim() } : {}),
+            ...(need.trim() ? { need: need.trim() } : {}),
+            ...(action.trim() ? { action: action.trim() } : {}),
+          },
+        }),
       });
       const journalData = (await journalResponse.json()) as {
         journalId?: string;
@@ -112,7 +159,7 @@ export default function NewJournalPage() {
               <p className="text-2xl">
                 {EMOTION_EMOJI[result.dominantEmotion]} {result.dominantEmotion}
               </p>
-              <p className="mt-1 text-sm text-slate-500">{result.confidence}% confidence</p>
+              <p className="mt-1 text-sm text-slate-500">{result.confidence}% signal strength</p>
             </CardContent>
           </Card>
           <Card>
@@ -133,7 +180,7 @@ export default function NewJournalPage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm text-slate-500">Risk</CardTitle>
+              <CardTitle className="text-sm text-slate-500">Support signal</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Badge className={levelBadgeClass(result.riskLevel)}>
@@ -169,12 +216,50 @@ export default function NewJournalPage() {
           </CardContent>
         </Card>
 
+        {result.themes.length ? (
+          <div className="flex flex-wrap gap-2">
+            {result.themes.map((theme) => <Badge key={theme} className="bg-indigo-100 text-indigo-800">{theme}</Badge>)}
+          </div>
+        ) : null}
+
+        <Card className="border-indigo-100 bg-indigo-50/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base"><Sparkles className="size-4 text-indigo-600" />A question for you</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-6 text-slate-700">{result.reflectionQuestion}</p>
+            <form onSubmit={saveReflection} className="mt-4 space-y-3">
+              <Textarea
+                value={reflectionAnswer}
+                onChange={(event) => { setReflectionAnswer(event.target.value.slice(0, 3000)); setReflectionSaved(false); setError(""); }}
+                minLength={10}
+                maxLength={3000}
+                required
+                className="min-h-24 resize-none border-indigo-200 bg-white"
+                placeholder="Write what comes up for you..."
+              />
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-slate-500">Your response is saved privately as a new entry.</span>
+                <Button type="submit" disabled={reflectionLoading || reflectionAnswer.trim().length < 10} className="bg-indigo-600 text-white hover:bg-indigo-500">
+                  {reflectionLoading ? <Loader2 className="size-4 animate-spin" /> : null}
+                  {reflectionSaved ? "Saved" : "Save reflection"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card className="border-emerald-100 bg-emerald-50/50">
+          <CardHeader><CardTitle className="text-base">A small experiment</CardTitle></CardHeader>
+          <CardContent><p className="text-sm leading-6 text-slate-700">{result.experiment}</p></CardContent>
+        </Card>
+
         {result.crisisDetected ? (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-900">
             <p className="font-medium">You do not have to go through this alone.</p>
             <p className="mt-2">
-              If you are in crisis, call <strong>14416</strong>. You can
-              also text HOME to <strong>741741</strong> to reach the Crisis Text Line.
+              If you may act on these thoughts, call your local emergency number now.
+              Find local, confidential crisis support at <strong>findahelpline.com</strong>.
             </p>
           </div>
         ) : null}
@@ -224,13 +309,26 @@ export default function NewJournalPage() {
           className="min-h-[200px] resize-none"
           placeholder="How are you feeling right now?"
         />
+        <details className="rounded-xl border border-slate-200 bg-white p-4">
+          <summary className="cursor-pointer text-sm font-medium text-slate-700">Add a quick check-in (optional)</summary>
+          <p className="mt-1 text-xs text-slate-500">These tiny details make your future pattern reports more useful.</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="energy">Energy level: {energy || "not set"}</Label>
+              <input id="energy" type="range" min="1" max="5" value={energy || 3} onChange={(e) => setEnergy(Number(e.target.value))} className="w-full accent-indigo-600" />
+            </div>
+            <div className="space-y-1.5"><Label htmlFor="event">What happened?</Label><Input id="event" maxLength={160} value={event} onChange={(e) => setEvent(e.target.value)} placeholder="e.g. A difficult meeting" /></div>
+            <div className="space-y-1.5"><Label htmlFor="need">What did you need?</Label><Input id="need" maxLength={160} value={need} onChange={(e) => setNeed(e.target.value)} placeholder="e.g. Reassurance or rest" /></div>
+            <div className="space-y-1.5"><Label htmlFor="action">What did you do next?</Label><Input id="action" maxLength={160} value={action} onChange={(e) => setAction(e.target.value)} placeholder="e.g. Took a walk" /></div>
+          </div>
+        </details>
         <div className="flex items-center justify-between text-xs text-slate-500">
           <span>{wordCount} words</span>
           <span>{content.length}/3000</span>
         </div>
         <p className="flex items-center gap-1.5 text-xs text-slate-500">
           <Lock className="size-3.5" />
-          Only you can see this entry. It is never used as a medical diagnosis.
+          Only you can see this entry. It is a reflective tool, never a medical diagnosis.
         </p>
         <Button
           type="submit"

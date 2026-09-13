@@ -9,20 +9,18 @@ import {
   type JournalRow,
 } from "@/lib/journal";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default async function HistoryPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
   }
 
+  const supabase = await createClient();
   const { data } = await supabase
     .from("journal_entries")
     .select("*, analysis_results(*)")
@@ -70,7 +68,7 @@ export default async function HistoryPage() {
                         Stress {entry.analysis.stressLevel}
                       </Badge>
                       <Badge className={levelBadgeClass(entry.analysis.riskLevel)}>
-                        Risk {entry.analysis.riskLevel}
+                          Support {entry.analysis.riskLevel}
                       </Badge>
                     </>
                   ) : null}

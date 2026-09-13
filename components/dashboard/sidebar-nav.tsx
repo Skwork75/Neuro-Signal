@@ -29,7 +29,7 @@ export function SidebarNav() {
               "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               active
                 ? "bg-indigo-600 text-white"
-                : "text-slate-600 hover:bg-indigo-50 hover:text-indigo-700",
+                : "text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-emerald-100/70 dark:hover:bg-emerald-900/70 dark:hover:text-emerald-200",
             )}
           >
             <Icon className="size-4" />

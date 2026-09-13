@@ -49,6 +49,7 @@
 }
 
 :root {
+  --font-sans: "Aptos", "Helvetica Neue", sans-serif;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -72,7 +73,7 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -117,16 +118,90 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.dark body {
+  background-image: radial-gradient(circle at 12% 0%, oklch(0.22 0.035 180 / 0.7), transparent 28rem), radial-gradient(circle at 90% 8%, oklch(0.24 0.04 85 / 0.45), transparent 24rem);
+}
+
+.dark .app-grid {
+  background-color: oklch(0.13 0.015 180);
+  background-image: linear-gradient(oklch(0.25 0.02 180 / 0.35) 1px, transparent 1px), linear-gradient(90deg, oklch(0.25 0.02 180 / 0.35) 1px, transparent 1px);
+}
+
+.dark .bg-white,
+.dark .bg-white\/80,
+.dark .bg-white\/85,
+.dark .bg-white\/90,
+.dark .bg-white\/95 {
+  background-color: oklch(0.2 0.02 180 / 0.95);
+}
+
+.dark .bg-slate-50 { background-color: oklch(0.16 0.02 180); }
+.dark .bg-slate-100 { background-color: oklch(0.25 0.025 180); }
+.dark .bg-indigo-50 { background-color: oklch(0.24 0.045 180); }
+.dark .bg-indigo-100 { background-color: oklch(0.3 0.055 180); }
+.dark .bg-indigo-50\/50 { background-color: oklch(0.24 0.045 180 / 0.55); }
+.dark .bg-emerald-50 { background-color: oklch(0.22 0.045 165); }
+.dark .bg-emerald-50\/40 { background-color: oklch(0.2 0.04 165 / 0.55); }
+.dark .bg-emerald-50\/50 { background-color: oklch(0.2 0.04 165 / 0.55); }
+.dark .bg-amber-50 { background-color: oklch(0.24 0.045 80); }
+.dark .bg-amber-50\/60 { background-color: oklch(0.24 0.045 80 / 0.6); }
+.dark .bg-red-50 { background-color: oklch(0.25 0.055 25); }
+
+.dark .text-slate-900,
+.dark .text-slate-950 {
+  color: oklch(0.96 0.01 180);
+}
+
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: oklch(0.8 0.02 180);
+}
+
+.dark .text-slate-500 {
+  color: oklch(0.68 0.02 180);
+}
+
+.dark .text-slate-400 { color: oklch(0.62 0.02 180); }
+.dark .text-slate-700 { color: oklch(0.82 0.02 180); }
+.dark .text-slate-800 { color: oklch(0.88 0.02 180); }
+.dark .text-indigo-600 { color: oklch(0.78 0.12 165); }
+.dark .text-indigo-700, .dark .text-indigo-800 { color: oklch(0.84 0.1 165); }
+.dark .text-indigo-900 { color: oklch(0.9 0.06 165); }
+.dark .text-amber-900, .dark .text-red-900 { color: oklch(0.9 0.04 80); }
+
+.dark .border-slate-200,
+.dark .border-slate-200\/80 {
+  border-color: oklch(0.34 0.025 180);
+}
+
+.dark .border-indigo-100, .dark .border-indigo-200 { border-color: oklch(0.38 0.06 180); }
+.dark .border-emerald-100, .dark .border-amber-100, .dark .border-sky-100 { border-color: oklch(0.36 0.04 180); }
+
+.dark .hover\:bg-indigo-50:hover {
+  background-color: oklch(0.25 0.06 270);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    background-image: radial-gradient(circle at 12% 0%, oklch(0.96 0.035 180 / 0.7), transparent 28rem), radial-gradient(circle at 90% 8%, oklch(0.95 0.04 85 / 0.45), transparent 24rem);
   }
   html {
     @apply font-sans;
   }
+  h1, h2, h3 {
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+.app-grid {
+  background-image: linear-gradient(oklch(0.88 0.02 180 / 0.22) 1px, transparent 1px), linear-gradient(90deg, oklch(0.88 0.02 180 / 0.22) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
 .line-clamp-2 {

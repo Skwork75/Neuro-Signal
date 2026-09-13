@@ -12,6 +12,14 @@ export type EmotionScores = {
   Neutral: number;
 };
 
+export type CheckIn = {
+  energy?: number;
+  event?: string;
+  need?: string;
+  action?: string;
+  helped?: boolean;
+};
+
 export interface AnalysisResult {
   dominantEmotion: EmotionType;
   emotionScores: EmotionScores;
@@ -23,7 +31,19 @@ export interface AnalysisResult {
   summary: string;
   insights: string[];
   recommendations: string[];
+  themes: string[];
+  reflectionQuestion: string;
+  experiment: string;
   crisisDetected: boolean;
+}
+
+export interface CounselorResult {
+  focus: string;
+  understanding: string;
+  nextSteps: string[];
+  reflectionQuestion: string;
+  sourceCount: number;
+  analysis: AnalysisResult;
 }
 
 export interface JournalEntry {
@@ -32,5 +52,6 @@ export interface JournalEntry {
   content: string;
   createdAt: string;
   updatedAt: string;
+  checkIn: CheckIn | null;
   analysis: AnalysisResult | null;
 }

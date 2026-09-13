@@ -2,6 +2,7 @@ import type {
   AnalysisResult,
   EmotionType,
   JournalEntry,
+  CheckIn,
   RiskLevel,
   StressLevel,
 } from "@/lib/types";
@@ -55,6 +56,9 @@ type AnalysisRow = {
   summary?: string | null;
   insights?: string[] | null;
   recommendations?: string[] | null;
+  themes?: string[] | null;
+  reflection_question?: string | null;
+  experiment?: string | null;
   crisis_detected?: boolean | null;
 };
 
@@ -64,6 +68,7 @@ export type JournalRow = {
   content: string;
   created_at: string;
   updated_at?: string | null;
+  check_in?: CheckIn | null;
   analysis_results?: AnalysisRow | AnalysisRow[] | null;
 };
 
@@ -101,6 +106,9 @@ export function mapAnalysis(row: AnalysisRow | null | undefined): AnalysisResult
     summary: row.summary ?? "",
     insights: row.insights ?? [],
     recommendations: row.recommendations ?? [],
+    themes: row.themes ?? [],
+    reflectionQuestion: row.reflection_question ?? "What feels most important to carry forward from this entry?",
+    experiment: row.experiment ?? "",
     crisisDetected: Boolean(row.crisis_detected),
   };
 }
@@ -116,6 +124,7 @@ export function mapJournal(row: JournalRow): JournalEntry {
     content: row.content,
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? row.created_at,
+    checkIn: row.check_in ?? null,
     analysis: mapAnalysis(analysisRow),
   };
 }
