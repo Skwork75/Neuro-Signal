@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  EMOTION_EMOJI,
   formatEntryDate,
   levelBadgeClass,
   mapJournal,
@@ -13,6 +12,8 @@ import { getCurrentUser } from "@/lib/auth";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Compass } from "lucide-react";
+import { EmotionMark } from "@/components/insights/emotion-mark";
 
 export default async function HistoryPage() {
   const user = await getCurrentUser();
@@ -57,7 +58,7 @@ export default async function HistoryPage() {
               <CardContent className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xl">
-                    {entry.analysis ? EMOTION_EMOJI[entry.analysis.dominantEmotion] : "📝"}
+                    {entry.analysis ? <EmotionMark emotion={entry.analysis.dominantEmotion} /> : <span className="inline-flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"><Compass className="size-4" /></span>}
                   </span>
                   <span className="text-sm font-medium text-slate-700">
                     {formatEntryDate(entry.createdAt)}

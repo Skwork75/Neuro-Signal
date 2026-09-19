@@ -34,15 +34,15 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <div className="app-grid flex min-h-full bg-[#f5f8f6] dark:bg-emerald-950">
-      <aside className="hidden w-64 flex-col border-r border-slate-200/80 bg-white/85 backdrop-blur dark:border-emerald-900/80 dark:bg-emerald-950/85 md:flex">
-        <Link href="/dashboard" className="px-5 py-6"><BrandLogo /></Link>
-        <div className="mx-4 mb-5 rounded-xl bg-[#eaf4ef] px-3 py-3 text-xs leading-5 text-slate-600 dark:bg-emerald-900/70 dark:text-emerald-100/70">
+    <div className="app-grid flex min-h-full bg-[#f5f6f0] dark:bg-emerald-950">
+      <aside className="hidden w-72 flex-col border-r border-emerald-900/70 bg-[#15373a] text-white md:flex">
+        <Link href="/dashboard" className="px-6 py-7"><BrandLogo nameClassName="text-white [&>span]:text-emerald-300" /></Link>
+        <div className="mx-5 mb-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-xs leading-5 text-emerald-100/70">
           <span className="font-semibold text-emerald-800 dark:text-emerald-300">A quiet space</span><br />to notice what you need.
         </div>
         <SidebarNav navItems={navItems} />
         <div className="mt-auto space-y-3 p-4">
-          <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-4 text-amber-900">
+          <p className="rounded-xl border border-amber-700/40 bg-amber-950/30 px-3 py-2 text-[11px] leading-4 text-amber-100/80">
             Not a medical diagnosis tool. If you are in immediate danger, call your local emergency number.
           </p>
           <form action={logout}>
@@ -54,8 +54,8 @@ export default async function DashboardLayout({
       </aside>
       <main className="min-h-full flex-1 overflow-y-auto p-4 pb-24 sm:p-6 md:pb-6">
         <div className="mx-auto mb-6 flex max-w-5xl items-center justify-between gap-4 border-b border-slate-200/80 pb-4 dark:border-slate-700/80">
-          <p className="text-sm text-slate-600 dark:text-slate-300">
-            Welcome back, <span className="font-semibold text-slate-900 dark:text-white">{displayName}</span>
+          <p className="text-sm text-slate-600 dark:text-emerald-100/70">
+            Welcome back, <span className="font-semibold text-slate-900 dark:text-emerald-50">{displayName}</span>
           </p>
           <ThemeToggle />
         </div>

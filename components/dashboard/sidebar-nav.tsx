@@ -28,8 +28,8 @@ export function SidebarNav() {
             className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               active
-                ? "bg-indigo-600 text-white"
-                : "text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 dark:text-emerald-100/70 dark:hover:bg-emerald-900/70 dark:hover:text-emerald-200",
+                ? "bg-emerald-500 text-emerald-950 shadow-lg shadow-emerald-950/20"
+                : "text-emerald-100/70 hover:bg-white/10 hover:text-white dark:text-emerald-100/70 dark:hover:bg-white/10 dark:hover:text-white",
             )}
           >
             <Icon className="size-4" />

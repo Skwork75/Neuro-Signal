@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, CalendarDays, Sparkles } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Compass, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  EMOTION_EMOJI,
   formatEntryDate,
   levelBadgeClass,
   mapJournal,
@@ -16,6 +15,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { QuickCheckIn } from "@/components/dashboard/quick-checkin";
 import type { EmotionType } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { EmotionMark } from "@/components/insights/emotion-mark";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
@@ -53,39 +53,37 @@ export default async function DashboardPage() {
   const todayLabel = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date());
 
   return (
-    <div className="mx-auto max-w-5xl space-y-7">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-6xl space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-5 animate-soft-rise">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-700">{todayLabel}</p>
-          <h1 className="mt-1 text-4xl font-semibold text-slate-900">How are you, really?</h1>
-          <p className="mt-1 text-sm text-slate-500">A small check-in can make the rest of the day more intentional.</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-300">{todayLabel}</p>
+          <h1 className="mt-2 text-4xl font-semibold text-slate-900 dark:text-emerald-50 sm:text-5xl">How are you, really?</h1>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-emerald-100/65">A small check-in can give the rest of the day somewhere gentler to go.</p>
         </div>
         <Link
           href="/journal/new"
           className={cn(buttonVariants({ size: "lg" }), "bg-emerald-700 text-white shadow-lg shadow-emerald-900/10 hover:bg-emerald-800")}
         >
-          New Entry
+          <Compass className="size-4" />Write a moment
         </Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="border-emerald-100 bg-white/90">
+        <Card className="animate-soft-rise stagger-1 border-emerald-100 bg-white/70 dark:border-emerald-900/70 dark:bg-emerald-950/40">
           <CardHeader>
             <CardTitle className="text-sm text-slate-500">Total Entries</CardTitle>
           </CardHeader>
           <CardContent className="text-3xl font-semibold">{totalEntries}</CardContent>
         </Card>
-        <Card className="border-amber-100 bg-white/90">
+        <Card className="animate-soft-rise stagger-2 border-amber-100 bg-white/70 dark:border-amber-900/70 dark:bg-emerald-950/40">
           <CardHeader>
             <CardTitle className="text-sm text-slate-500">Top Emotion</CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {dominantEmotion
-              ? `${EMOTION_EMOJI[dominantEmotion]} ${dominantEmotion}`
-              : "—"}
+          <CardContent className="flex items-center gap-3 text-2xl font-semibold">
+            {dominantEmotion ? <><EmotionMark emotion={dominantEmotion} />{dominantEmotion}</> : "—"}
           </CardContent>
         </Card>
-        <Card className="border-sky-100 bg-white/90">
+        <Card className="animate-soft-rise stagger-3 border-sky-100 bg-white/70 dark:border-sky-900/70 dark:bg-emerald-950/40">
           <CardHeader>
             <CardTitle className="text-sm text-slate-500">Last Entry</CardTitle>
           </CardHeader>
@@ -108,9 +106,9 @@ export default async function DashboardPage() {
             <Link href="/patterns" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-emerald-200">See your patterns <ArrowUpRight className="size-4" /></Link>
           </CardContent>
         </Card>
-        <Card className="border-slate-200 bg-white/90">
+        <Card className="border-slate-200 bg-white/70 dark:border-emerald-900/70 dark:bg-emerald-950/40">
           <CardHeader><CardTitle className="flex items-center gap-2"><CalendarDays className="size-4 text-amber-600" />A gentle prompt</CardTitle></CardHeader>
-          <CardContent><p className="text-lg font-medium leading-7 text-slate-800">What would make today feel 10% kinder?</p><Link href="/journal/new" className="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:text-emerald-900">Write it down <ArrowUpRight className="inline size-4" /></Link></CardContent>
+          <CardContent><p className="text-lg font-medium leading-7 text-slate-800 dark:text-emerald-50">What would make today feel 10% kinder?</p><Link href="/journal/new" className="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300">Write it down <ArrowUpRight className="inline size-4" /></Link></CardContent>
         </Card>
       </section>
 
@@ -131,13 +129,11 @@ export default async function DashboardPage() {
         ) : (
           <div className="space-y-3">
             {recent.map((entry) => (
-              <Card key={entry.id} className="bg-white">
+                <Card key={entry.id} className="bg-white/70 dark:bg-emerald-950/40">
                 <CardContent className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xl">
-                      {entry.analysis
-                        ? EMOTION_EMOJI[entry.analysis.dominantEmotion]
-                        : "📝"}
+                      {entry.analysis ? <EmotionMark emotion={entry.analysis.dominantEmotion} /> : <span className="inline-flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"><Compass className="size-4" /></span>}
                     </span>
                     <span className="text-sm font-medium text-slate-700">
                       {formatEntryDate(entry.createdAt)}

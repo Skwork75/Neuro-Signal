@@ -42,9 +42,10 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-slate-900">Sign in</h2>
-      <p className="mt-1 text-sm text-slate-500">
-        Welcome back. Continue your journaling practice.
+      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-300">Welcome back</p>
+      <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-emerald-50">Return to yourself.</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-emerald-100/65">
+        Continue your private reflection practice.
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -97,16 +98,16 @@ export default function LoginPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="h-10 w-full bg-indigo-600 text-white hover:bg-indigo-500"
+          className="h-10 w-full bg-emerald-700 text-white hover:bg-emerald-800"
         >
           {loading ? <Loader2 className="size-4 animate-spin" /> : null}
           Sign In
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-slate-500">
+      <p className="mt-5 text-center text-sm text-slate-500 dark:text-emerald-100/60">
         Need an account?{" "}
-        <Link href="/signup" className="font-medium text-indigo-600 hover:underline">
+        <Link href="/signup" className="font-medium text-emerald-700 hover:underline dark:text-emerald-300">
           Create one
         </Link>
       </p>

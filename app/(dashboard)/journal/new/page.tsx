@@ -16,7 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { barColorClass, EMOTION_EMOJI, levelBadgeClass } from "@/lib/journal";
+import { barColorClass, levelBadgeClass } from "@/lib/journal";
+import { EmotionMark } from "@/components/insights/emotion-mark";
 import type { AnalysisResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -144,10 +145,10 @@ export default function NewJournalPage() {
       : result.insights;
 
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div className="flex items-center gap-2 text-green-700">
+      <div className="mx-auto max-w-4xl space-y-7">
+        <div className="flex items-center gap-3 text-emerald-700 dark:text-emerald-300">
           <CheckCircle className="size-6" />
-          <h1 className="text-2xl font-semibold">Analysis Complete</h1>
+          <h1 className="text-3xl font-semibold text-slate-900 dark:text-emerald-50">Your reflection, returned</h1>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
@@ -156,8 +157,8 @@ export default function NewJournalPage() {
               <CardTitle className="text-sm text-slate-500">Emotion</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl">
-                {EMOTION_EMOJI[result.dominantEmotion]} {result.dominantEmotion}
+              <p className="flex items-center gap-3 text-2xl">
+                <EmotionMark emotion={result.dominantEmotion} size="large" /> {result.dominantEmotion}
               </p>
               <p className="mt-1 text-sm text-slate-500">{result.confidence}% signal strength</p>
             </CardContent>
@@ -197,7 +198,7 @@ export default function NewJournalPage() {
         </div>
 
         {result.summary ? (
-          <p className="text-sm text-slate-600">{result.summary}</p>
+          <p className="rounded-2xl border border-emerald-100 bg-emerald-50/60 px-5 py-4 text-sm leading-6 text-slate-700 dark:border-emerald-900/70 dark:bg-emerald-950/45 dark:text-emerald-100/80">{result.summary}</p>
         ) : null}
 
         <Card>
@@ -222,9 +223,9 @@ export default function NewJournalPage() {
           </div>
         ) : null}
 
-        <Card className="border-indigo-100 bg-indigo-50/50">
+        <Card className="border-emerald-100 bg-emerald-50/50 dark:border-emerald-900/70 dark:bg-emerald-950/45">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base"><Sparkles className="size-4 text-indigo-600" />A question for you</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base"><Sparkles className="size-4 text-emerald-600" />A question for you</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm leading-6 text-slate-700">{result.reflectionQuestion}</p>
@@ -235,12 +236,12 @@ export default function NewJournalPage() {
                 minLength={10}
                 maxLength={3000}
                 required
-                className="min-h-24 resize-none border-indigo-200 bg-white"
+                className="min-h-24 resize-none border-emerald-200 bg-white/80 dark:border-emerald-800 dark:bg-emerald-950/60"
                 placeholder="Write what comes up for you..."
               />
               <div className="flex items-center justify-between gap-3">
                 <span className="text-xs text-slate-500">Your response is saved privately as a new entry.</span>
-                <Button type="submit" disabled={reflectionLoading || reflectionAnswer.trim().length < 10} className="bg-indigo-600 text-white hover:bg-indigo-500">
+                <Button type="submit" disabled={reflectionLoading || reflectionAnswer.trim().length < 10} className="bg-emerald-700 text-white hover:bg-emerald-800">
                   {reflectionLoading ? <Loader2 className="size-4 animate-spin" /> : null}
                   {reflectionSaved ? "Saved" : "Save reflection"}
                 </Button>
@@ -249,7 +250,7 @@ export default function NewJournalPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-100 bg-emerald-50/50">
+        <Card className="border-[#e6cdb9] bg-[#fff8ee] dark:border-amber-900/70 dark:bg-amber-950/35">
           <CardHeader><CardTitle className="text-base">A small experiment</CardTitle></CardHeader>
           <CardContent><p className="text-sm leading-6 text-slate-700">{result.experiment}</p></CardContent>
         </Card>
@@ -268,7 +269,7 @@ export default function NewJournalPage() {
           <Button
             type="button"
             onClick={resetForm}
-            className="bg-indigo-600 text-white hover:bg-indigo-500"
+            className="bg-emerald-700 text-white hover:bg-emerald-800"
           >
             Write Another Entry
           </Button>
@@ -284,13 +285,14 @@ export default function NewJournalPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-7">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">New Entry</h1>
-        <p className="text-sm text-slate-500">Write freely. Analysis stays private to your account.</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-300">Private journal</p>
+        <h1 className="mt-2 text-4xl font-semibold text-slate-900 dark:text-emerald-50">What is here today?</h1>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-emerald-100/65">Write without editing yourself. There is no perfect entry and no need to make it make sense yet.</p>
       </div>
 
-      <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+      <div className="rounded-2xl border border-[#e6cdb9] bg-[#fff8ee] px-5 py-4 text-sm leading-6 text-[#765044] dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100/80">
         {prompt}
       </div>
 
@@ -309,8 +311,8 @@ export default function NewJournalPage() {
           className="min-h-[200px] resize-none"
           placeholder="How are you feeling right now?"
         />
-        <details className="rounded-xl border border-slate-200 bg-white p-4">
-          <summary className="cursor-pointer text-sm font-medium text-slate-700">Add a quick check-in (optional)</summary>
+        <details className="rounded-2xl border border-slate-200 bg-white/70 p-5 dark:border-emerald-900/70 dark:bg-emerald-950/40">
+          <summary className="cursor-pointer text-sm font-medium text-slate-700 dark:text-emerald-100">Add a little context <span className="font-normal text-slate-500 dark:text-emerald-100/60">(optional)</span></summary>
           <p className="mt-1 text-xs text-slate-500">These tiny details make your future pattern reports more useful.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
@@ -333,7 +335,7 @@ export default function NewJournalPage() {
         <Button
           type="submit"
           disabled={loading || content.trim().length < 10}
-          className="h-10 w-full bg-indigo-600 text-white hover:bg-indigo-500"
+          className="h-11 w-full bg-emerald-700 text-white shadow-lg shadow-emerald-900/15 hover:bg-emerald-800"
         >
           {loading ? <Loader2 className="size-4 animate-spin" /> : null}
           {loading ? "Analyzing..." : "Analyze My Entry"}

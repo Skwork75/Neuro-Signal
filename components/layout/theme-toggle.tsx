@@ -1,24 +1,21 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const THEME_KEY = "neurosignal-theme";
 
-function getInitialTheme() {
-  if (typeof window === "undefined") return false;
-
-  const savedTheme = window.localStorage.getItem(THEME_KEY);
-  return savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
 export function ThemeToggle() {
-  const [dark, setDark] = useState(getInitialTheme);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+    const savedTheme = window.localStorage.getItem(THEME_KEY);
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const nextDark = savedTheme ? savedTheme === "dark" : prefersDark;
+    startTransition(() => setDark(nextDark));
+    document.documentElement.classList.toggle("dark", nextDark);
+  }, []);
 
   function toggleTheme() {
     const nextDark = !dark;

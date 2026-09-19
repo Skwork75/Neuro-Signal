@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,15 +49,15 @@ export default function SignupPage() {
   if (success) {
     return (
       <div className="py-6 text-center">
-        <p className="text-4xl">📧</p>
-        <h2 className="mt-3 text-xl font-semibold text-slate-900">Check your email</h2>
-        <p className="mt-2 text-sm text-slate-500">
+        <CheckCircle2 className="mx-auto size-12 text-emerald-600" />
+        <h2 className="mt-4 text-2xl font-semibold text-slate-900 dark:text-emerald-50">Check your email</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-emerald-100/65">
           We sent a confirmation link to <span className="font-medium text-slate-700">{email}</span>.
           Confirm your inbox, then sign in to start journaling.
         </p>
         <Link
           href="/login"
-          className="mt-6 inline-block text-sm font-medium text-indigo-600 hover:underline"
+          className="mt-6 inline-block text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-300"
         >
           Back to sign in
         </Link>
@@ -67,9 +67,10 @@ export default function SignupPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-slate-900">Create account</h2>
-      <p className="mt-1 text-sm text-slate-500">
-        Start a private journal with AI-supported reflection.
+      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-300">Start gently</p>
+      <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-emerald-50">Make space for what is real.</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-emerald-100/65">
+        Create a private journal with thoughtful, AI-supported reflection.
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -135,7 +136,7 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <div className="rounded-xl border border-[#e6cdb9] bg-[#fff8ee] px-3 py-3 text-xs leading-5 text-[#765044] dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100/80">
           NeuroSignal is not a medical diagnosis tool and does not replace professional
           mental health care.
         </div>
@@ -143,16 +144,16 @@ export default function SignupPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="h-10 w-full bg-indigo-600 text-white hover:bg-indigo-500"
+          className="h-10 w-full bg-emerald-700 text-white hover:bg-emerald-800"
         >
           {loading ? <Loader2 className="size-4 animate-spin" /> : null}
           Create Account
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-slate-500">
+      <p className="mt-5 text-center text-sm text-slate-500 dark:text-emerald-100/60">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-indigo-600 hover:underline">
+        <Link href="/login" className="font-medium text-emerald-700 hover:underline dark:text-emerald-300">
           Sign in
         </Link>
       </p>
