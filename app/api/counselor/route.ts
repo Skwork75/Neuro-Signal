@@ -249,8 +249,8 @@ export async function POST(request: Request) {
 
     const reflectionQuestion = isComplete ? "" : makeFollowUpQuestion(body.data.reason, body.data.feelings, body.data.impact, body.data.extra, body.data.answer);
     const nextConversation: CounselorMessage[] = isFollowUp
-      ? [...conversation, { role: "user", content: body.data.answer }, { role: "assistant", content: understanding }, ...(reflectionQuestion ? [{ role: "assistant", content: reflectionQuestion }] : [])]
-      : [{ role: "assistant", content: understanding }, ...(reflectionQuestion ? [{ role: "assistant", content: reflectionQuestion }] : [])];
+      ? [...conversation, { role: "user", content: body.data.answer } satisfies CounselorMessage, { role: "assistant", content: understanding } satisfies CounselorMessage, ...(reflectionQuestion ? [{ role: "assistant", content: reflectionQuestion } satisfies CounselorMessage] : [])]
+      : [{ role: "assistant", content: understanding } satisfies CounselorMessage, ...(reflectionQuestion ? [{ role: "assistant", content: reflectionQuestion } satisfies CounselorMessage] : [])];
 
     const result: CounselorResult = {
       focus,

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mapJournal, type JournalRow } from "@/lib/journal";
+import type { JournalEntry } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -12,16 +13,16 @@ import { cn } from "@/lib/utils";
 const DAY_WINDOWS = [7, 14, 30] as const;
 
 function countBy<T extends string>(items: T[]) {
-  return items.reduce<Record<string, number>>((counts, item) => ({
-    ...counts,
-    [item]: (counts[item] ?? 0) + 1,
-  }), {});
+  return items.reduce<Record<string, number>>((counts, item) => {
+    counts[item] = (counts[item] ?? 0) + 1;
+    return counts;
+  }, {});
 }
 
-function summarizeWindow(entries: JournalRow[], days: number) {
+function summarizeWindow(entries: JournalEntry[], days: number, now: number) {
   const recent = entries.filter((entry) => {
-    const date = new Date(entry.created_at).getTime();
-    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    const date = new Date(entry.createdAt).getTime();
+    const cutoff = now - days * 24 * 60 * 60 * 1000;
     return date >= cutoff;
   });
 
@@ -37,23 +38,14 @@ function summarizeWindow(entries: JournalRow[], days: number) {
     };
   }
 
-  const analyzed = recent.filter((entry) => entry.analysis_results);
-  const emotions = analyzed.map((entry) => {
-    const row = Array.isArray(entry.analysis_results) ? entry.analysis_results[0] : entry.analysis_results;
-    return row?.dominant_emotion ?? "Neutral";
-  });
-  const themes = analyzed.flatMap((entry) => {
-    const row = Array.isArray(entry.analysis_results) ? entry.analysis_results[0] : entry.analysis_results;
-    return row?.themes ?? [];
-  });
+  const analyzed = recent.filter((entry) => entry.analysis);
+  const emotions = analyzed.map((entry) => entry.analysis?.dominantEmotion ?? "Neutral");
+  const themes = analyzed.flatMap((entry) => entry.analysis?.themes ?? []);
   const stressScores = analyzed
-    .map((entry) => {
-      const row = Array.isArray(entry.analysis_results) ? entry.analysis_results[0] : entry.analysis_results;
-      return row?.stress_score ?? null;
-    })
+    .map((entry) => entry.analysis?.stressScore ?? null)
     .filter((value): value is number => typeof value === "number");
   const energy = recent
-    .map((entry) => entry.check_in?.energy)
+    .map((entry) => entry.checkIn?.energy)
     .filter((value): value is number => typeof value === "number");
 
   const emotionCounts = countBy(emotions as string[]);
@@ -80,18 +72,19 @@ export default async function PatternsPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("journal_entries")
-    .select("*, analysis_results(*)")
+    .select("id, user_id, content, created_at, updated_at, check_in, analysis_results(dominant_emotion, emotion_scores, stress_level, stress_score, risk_level, risk_score, confidence, summary, insights, recommendations, themes, reflection_question, experiment, crisis_detected)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(120);
   const entries = ((data ?? []) as JournalRow[]).map(mapJournal);
   const analyzed = entries.filter((entry) => entry.analysis);
   const themes = analyzed.flatMap((entry) => entry.analysis?.themes ?? []);
-  const themeCounts = Object.entries(themes.reduce<Record<string, number>>((counts, theme) => ({ ...counts, [theme]: (counts[theme] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1]);
+  const themeCounts = Object.entries(countBy(themes)).sort((a, b) => b[1] - a[1]);
   const energy = entries.map((entry) => entry.checkIn?.energy).filter((value): value is number => typeof value === "number");
   const averageEnergy = energy.length ? (energy.reduce((sum, value) => sum + value, 0) / energy.length).toFixed(1) : null;
   const commonTheme = themeCounts[0]?.[0];
-  const windowSummaries = DAY_WINDOWS.map((days) => summarizeWindow((data ?? []) as JournalRow[], days));
+  const now = Date.now();
+  const windowSummaries = DAY_WINDOWS.map((days) => summarizeWindow(entries, days, now));
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">

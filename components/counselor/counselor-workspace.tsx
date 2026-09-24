@@ -59,6 +59,7 @@ export default function CounselorWorkspace({ entries }: { entries: Entry[] }) {
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (loading) return;
     setLoading(true);
     setError("");
     try {
@@ -79,7 +80,7 @@ export default function CounselorWorkspace({ entries }: { entries: Entry[] }) {
 
   async function sendFollowUp(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!result || !followUp.trim()) return;
+    if (loading || !result || !followUp.trim()) return;
     setLoading(true);
     setError("");
     try {

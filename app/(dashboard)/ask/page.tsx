@@ -17,7 +17,9 @@ export default function AskPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   async function submit(event: React.FormEvent) {
-    event.preventDefault(); setLoading(true); setError("");
+    event.preventDefault();
+    if (loading || question.trim().length < 3) return;
+    setLoading(true); setError("");
     try {
       const response = await fetch("/api/journal-search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question }) });
       const data = await response.json() as { matches?: Match[]; searchedEntries?: number; error?: string };

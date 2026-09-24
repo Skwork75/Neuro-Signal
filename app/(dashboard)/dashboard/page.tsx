@@ -26,7 +26,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("journal_entries")
-    .select("*, analysis_results(*)")
+    .select("id, user_id, content, created_at, check_in, analysis_results(dominant_emotion, stress_level, risk_level)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(20);
