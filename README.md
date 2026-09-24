@@ -2,7 +2,7 @@
 
 > A calm, private space to understand what your words may be telling you.
 
-NeuroSignal is an AI-assisted journaling and reflection app for noticing emotional patterns over time. Users can write private entries, add quick check-ins, explore recurring themes, search their own journal, and use a guided counselor flow to turn a difficult moment into a small next step.
+NeuroSignal is an AI-assisted journaling and reflection app for noticing emotional patterns over time. Users can write private entries, add quick check-ins, explore recurring themes, search their own journal, and use a guided multi-turn counselor flow to turn a difficult moment into a small next step.
 
 NeuroSignal is a reflective wellbeing tool. It is **not** a medical diagnosis tool, therapist, emergency service, or replacement for qualified professional care.
 
@@ -25,14 +25,37 @@ Write or check in
             v
 Private Supabase storage
             |
-            v
-Emotion and theme analysis
+            +--> Persisted entry analysis
             |
             +--> Entry insights and recommendations
-            +--> Patterns across entries
-            +--> Journal search
-            +--> Guided counselor reflection
+            +--> Patterns across stored analyses
+            +--> Journal search across owned entries
+            +--> Guided multi-turn counselor reflection
 ```
+
+## Current Architecture and Status
+
+The application uses a Next.js App Router structure with server-side page data loading and authenticated route handlers. Supabase is the source of truth for journal entries, stored analysis results, and quick check-ins. Counselor conversation messages are kept in the active client/request flow and are not persisted as a separate database conversation.
+
+Implemented:
+
+- Journal entry creation with optional energy, event, need, and action context.
+- Hugging Face emotion classification with a local keyword fallback when model inference is unavailable.
+- Separate heuristic stress, safety, theme, recommendation, and reflection signals.
+- Persisted one-analysis-per-journal-entry records through `/api/analyze`.
+- Dashboard summaries, recent entries, and quick check-ins.
+- 7-, 14-, and 30-day pattern summaries using stored analysis data.
+- Bounded Ask Journal retrieval over the user's latest entries with concept and synonym expansion; it does not use embeddings or pgvector.
+- Multi-turn Counselor reflection with initial answers, selected journal evidence, conversation history, intent-aware responses, follow-up questions, practical next steps, and urgent safety interruption.
+- Supabase authentication and row-level security for user-owned data.
+
+Current limitations:
+
+- Analysis is a reflective signal system, not a clinical or diagnostic model.
+- Counselor conversation state is session-local and is not stored as a durable transcript.
+- Ask Journal uses bounded lexical/concept matching rather than semantic vector search.
+- User feedback is represented in the result contract, but there is no complete feedback analytics workflow.
+- Crisis handling provides immediate-support guidance; it is not an emergency response service.
 
 ## Tech Stack
 
@@ -68,6 +91,11 @@ app/
 components/               Shared UI and feature components
 lib/
    analyze.ts              Emotion, stress, theme, and safety analysis
+   emotions.ts             Hugging Face classification and local fallback
+   stress.ts               Emotion-derived stress signal
+   safety.ts               Safety state and crisis-language detection
+   themes.ts               Recurring theme detection
+   recommendations.ts      Reflective recommendations and experiments
    auth.ts                 Current-user helpers
    journal.ts              Journal mapping and display helpers
    supabase/               Browser and server Supabase clients
@@ -149,13 +177,13 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `/api/analyze` | `POST` | Analyze and persist one owned journal entry |
 | `/api/checkins` | `POST` | Save a quick mood and energy check-in |
 | `/api/journal-search` | `POST` | Search the authenticated user's entries |
-| `/api/counselor` | `POST` | Combine counselor questions with optional journal context |
+| `/api/counselor` | `POST` | Start or continue a multi-turn counselor reflection with optional journal context |
 
 Every user-facing data endpoint verifies the current Supabase user before reading or writing personal content.
 
 ## Analysis Behavior
 
-When `HUGGINGFACE_API_KEY` is available, NeuroSignal uses the configured text-classification model. If the model request is unavailable, the app falls back to a limited local keyword-based analysis so journal writing can still complete.
+When `HUGGINGFACE_API_KEY` is available, NeuroSignal uses the configured text-classification model for emotion scores. If model inference is unavailable, it falls back to a limited local keyword-based classifier. Stress, safety, themes, recommendations, and experiments are calculated in the server-side analysis layer. Analysis results are persisted after an entry is analyzed and are then read by Dashboard and Patterns instead of re-running AI analysis during those page loads.
 
 The analysis can identify:
 
@@ -167,6 +195,12 @@ The analysis can identify:
 
 These signals are deliberately framed as reflection aids, not clinical conclusions.
 
+### Counselor conversation
+
+The Counselor endpoint accepts `mode: "initial"` or `mode: "follow_up"`. Follow-up requests include the initial counselor answers, selected entry IDs, prior counselor messages, the latest user response, and the current turn. The route re-reads selected entries under the authenticated user, analyzes the combined context for safety and internal guidance, and returns the next response, optional question, updated message list, and completion state.
+
+The response logic recognizes advice requests, direct questions, short or unclear replies, information sharing, and requests to end. It normally asks one question at a time, provides situation-specific practical suggestions when advice is requested, and stops ordinary reflection when urgent safety language is detected.
+
 ## Deploying to Vercel
 
 1. Import the repository into Vercel.
@@ -174,6 +208,8 @@ These signals are deliberately framed as reflection aids, not clinical conclusio
 3. Add the same environment variables from `.env.local` to the Vercel project settings.
 4. Run the Supabase schema and add the production auth callback URL before testing sign-in.
 5. Deploy with the default build command: `npm run build`.
+
+The repository is linked to an existing Vercel project. A production deployment requires access to the Vercel team that owns that project; a CLI account authenticated to a different team will receive a `Not authorized` error. Do not create a replacement project unless its environment variables, Supabase settings, and authentication redirects are intentionally configured again.
 
 After deployment, verify sign-up, sign-in, journal creation, analysis, counselor reflection, and dark mode using the production URL.
 
