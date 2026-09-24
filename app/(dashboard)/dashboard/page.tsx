@@ -30,8 +30,20 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(20);
+  const { data: checkInData, error: checkInError } = await supabase
+    .from("quick_checkins")
+    .select("mood, energy, note, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(10);
 
   const entries = ((data ?? []) as JournalRow[]).map(mapJournal);
+  const recentCheckIns = !checkInError ? (checkInData ?? []).map((checkIn) => ({
+    mood: checkIn.mood,
+    energy: checkIn.energy,
+    note: checkIn.note,
+    createdAt: checkIn.created_at,
+  })) : [];
   const totalEntries = entries.length;
   const emotionCounts = entries.reduce(
     (counts, entry) => {
@@ -50,6 +62,10 @@ export default async function DashboardPage() {
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - 7);
   const weekEntries = entries.filter((entry) => new Date(entry.createdAt) >= weekStart).length;
+  const averageCheckInEnergy = recentCheckIns.length
+    ? Math.round((recentCheckIns.reduce((sum, item) => sum + (item.energy ?? 0), 0) / recentCheckIns.length) * 10) / 10
+    : null;
+  const latestCheckIn = recentCheckIns[0];
   const todayLabel = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date());
 
   return (
@@ -107,8 +123,19 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
         <Card className="border-slate-200 bg-white/70 dark:border-emerald-900/70 dark:bg-emerald-950/40">
-          <CardHeader><CardTitle className="flex items-center gap-2"><CalendarDays className="size-4 text-amber-600" />A gentle prompt</CardTitle></CardHeader>
-          <CardContent><p className="text-lg font-medium leading-7 text-slate-800 dark:text-emerald-50">What would make today feel 10% kinder?</p><Link href="/journal/new" className="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300">Write it down <ArrowUpRight className="inline size-4" /></Link></CardContent>
+          <CardHeader><CardTitle className="flex items-center gap-2"><CalendarDays className="size-4 text-amber-600" />Check-in context</CardTitle></CardHeader>
+          <CardContent>
+            {latestCheckIn ? (
+              <div className="space-y-2 text-sm leading-6 text-slate-700 dark:text-emerald-50/80">
+                <p><span className="font-medium">Latest mood:</span> {latestCheckIn.mood}</p>
+                <p><span className="font-medium">Recent energy:</span> {averageCheckInEnergy ?? latestCheckIn.energy}/5</p>
+                {latestCheckIn.note ? <p className="text-xs italic text-slate-600 dark:text-emerald-100/65">“{latestCheckIn.note}”</p> : null}
+              </div>
+            ) : (
+              <p className="text-sm leading-6 text-slate-600 dark:text-emerald-100/65">No recent quick check-ins yet. A short mood note can help you spot patterns later.</p>
+            )}
+            <Link href="/journal/new" className="mt-4 inline-block text-sm font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-300">Write a reflection <ArrowUpRight className="inline size-4" /></Link>
+          </CardContent>
         </Card>
       </section>
 

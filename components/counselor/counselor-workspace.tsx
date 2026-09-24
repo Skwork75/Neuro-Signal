@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { formatEntryDate, levelBadgeClass } from "@/lib/journal";
-import type { CounselorResult } from "@/lib/types";
+import type { CounselorMessage, CounselorResult } from "@/lib/types";
 
 type Entry = { id: string; content: string; created_at: string };
 
@@ -24,6 +24,7 @@ export default function CounselorWorkspace({ entries }: { entries: Entry[] }) {
   const [extra, setExtra] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [result, setResult] = useState<CounselorResult | null>(null);
+  const [followUp, setFollowUp] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -64,7 +65,7 @@ export default function CounselorWorkspace({ entries }: { entries: Entry[] }) {
       const response = await fetch("/api/counselor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...answers, extra, entryIds: selected }),
+        body: JSON.stringify({ mode: "initial", ...answers, extra, entryIds: selected }),
       });
       const data = await response.json() as CounselorResult & { error?: string };
       if (!response.ok) throw new Error(data.error ?? "Could not prepare your reflection.");
@@ -76,15 +77,47 @@ export default function CounselorWorkspace({ entries }: { entries: Entry[] }) {
     }
   }
 
+  async function sendFollowUp(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!result || !followUp.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/counselor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "follow_up",
+          ...answers,
+          extra,
+          entryIds: selected,
+          answer: followUp.trim(),
+          conversation: result.conversation ?? [],
+          turn: result.turn ?? 0,
+        }),
+      });
+      const data = await response.json() as CounselorResult & { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "Could not continue the reflection.");
+      setResult(data);
+      setFollowUp("");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not continue the reflection.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   if (result) {
+    const isComplete = Boolean(result.isComplete);
+    const visibleMessages = (result.conversation ?? []).filter((message, index, messages) => !( !isComplete && index === messages.length - 1 && message.role === "assistant"));
     return <div className="mx-auto max-w-5xl space-y-7">
       <div className="flex items-start justify-between gap-4">
-        <div><p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-emerald-500"><Check className="size-4" />Reflection ready</p><h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-emerald-50">A thoughtful next step</h1><p className="mt-2 text-sm text-slate-600 dark:text-emerald-100/70">Built from your answers and {result.sourceCount} selected journal {result.sourceCount === 1 ? "entry" : "entries"}.</p></div>
-        <div className="flex flex-wrap justify-end gap-2"><Button type="button" variant="outline" onClick={() => setResult(null)}>Start over</Button><Button type="button" onClick={saveReflection} disabled={saving || saved} className="bg-emerald-600 text-white hover:bg-emerald-500">{saving ? <Loader2 className="size-4 animate-spin" /> : saved ? <Check className="size-4" /> : null}{saved ? "Saved to journal" : "Save reflection"}</Button></div>
+        <div><p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-emerald-500"><Check className="size-4" />{isComplete ? "Reflection complete" : "Reflection in progress"}</p><h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-emerald-50">{isComplete ? "A thoughtful next step" : "Let’s explore this together"}</h1><p className="mt-2 text-sm text-slate-600 dark:text-emerald-100/70">Built from your answers and {result.sourceCount} selected journal {result.sourceCount === 1 ? "entry" : "entries"}.</p></div>
+        <div className="flex flex-wrap justify-end gap-2"><Button type="button" variant="outline" onClick={() => { setResult(null); setFollowUp(""); }}>Start over</Button>{isComplete ? <Button type="button" onClick={saveReflection} disabled={saving || saved} className="bg-emerald-600 text-white hover:bg-emerald-500">{saving ? <Loader2 className="size-4 animate-spin" /> : saved ? <Check className="size-4" /> : null}{saved ? "Saved to journal" : "Save reflection"}</Button> : null}</div>
       </div>
       {result.analysis.crisisDetected ? <Alert variant="destructive"><AlertDescription>If you may act on thoughts of harming yourself or someone else, contact your local emergency number now or visit findahelpline.com for immediate, confidential support.</AlertDescription></Alert> : null}
-      <Card className="border-emerald-800/70 bg-emerald-950 text-emerald-50"><CardHeader><CardTitle className="flex items-center gap-2 text-emerald-100"><Sparkles className="size-4" />What I am hearing</CardTitle></CardHeader><CardContent><p className="text-lg leading-7">{result.understanding}</p><div className="mt-4 flex flex-wrap gap-2"><Badge className="bg-emerald-400 text-emerald-950">Focus: {result.focus}</Badge><Badge className={levelBadgeClass(result.analysis.stressLevel)}>Stress {result.analysis.stressLevel}</Badge><Badge className={levelBadgeClass(result.analysis.riskLevel)}>Support {result.analysis.riskLevel}</Badge></div></CardContent></Card>
-      <div className="grid gap-4 lg:grid-cols-2"><Card><CardHeader><CardTitle className="flex items-center gap-2"><ArrowRight className="size-4 text-emerald-500" />Small steps to try</CardTitle></CardHeader><CardContent><ol className="space-y-3 text-sm leading-6 text-slate-600 dark:text-emerald-100/75">{result.nextSteps.map((step, index) => <li key={step} className="flex gap-3"><span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">{index + 1}</span><span>{step}</span></li>)}</ol></CardContent></Card><Card className="border-amber-200/70 bg-amber-50/60 dark:border-amber-800/70 dark:bg-amber-950/40"><CardHeader><CardTitle className="text-amber-950 dark:text-amber-100">A question to carry forward</CardTitle></CardHeader><CardContent><p className="text-sm leading-6 text-amber-950/80 dark:text-amber-100/75">{result.reflectionQuestion}</p></CardContent></Card></div>
+      <Card className="border-emerald-800/70 bg-emerald-950 text-emerald-50"><CardHeader><CardTitle className="flex items-center gap-2 text-emerald-100"><Sparkles className="size-4" />{isComplete ? "What we discovered" : "What I am hearing"}</CardTitle></CardHeader><CardContent><div className="space-y-4">{visibleMessages.map((message: CounselorMessage, index) => <div key={`${message.role}-${index}`} className={message.role === "user" ? "ml-auto max-w-3xl rounded-xl bg-emerald-800/70 p-3 text-sm leading-6 text-emerald-50" : "max-w-3xl whitespace-pre-line text-lg leading-7 text-emerald-50"}>{message.content}</div>)}</div>{isComplete ? <div className="mt-4 flex flex-wrap gap-2"><Badge className="bg-emerald-400 text-emerald-950">Focus: {result.focus}</Badge><Badge className={levelBadgeClass(result.analysis.stressLevel)}>Stress {result.analysis.stressLevel}</Badge><Badge className={levelBadgeClass(result.analysis.riskLevel)}>Support {result.analysis.riskLevel}</Badge></div> : null}</CardContent></Card>
+      {isComplete ? <><div className="grid gap-4 lg:grid-cols-2"><Card><CardHeader><CardTitle className="flex items-center gap-2"><ArrowRight className="size-4 text-emerald-500" />Personalized small steps</CardTitle></CardHeader><CardContent><ol className="space-y-3 text-sm leading-6 text-slate-600 dark:text-emerald-100/75">{result.nextSteps.map((step, index) => <li key={step} className="flex gap-3"><span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">{index + 1}</span><span>{step}</span></li>)}</ol></CardContent></Card><Card className="border-amber-200/70 bg-amber-50/60 dark:border-amber-800/70 dark:bg-amber-950/40"><CardHeader><CardTitle className="text-amber-950 dark:text-amber-100">One thing to carry forward</CardTitle></CardHeader><CardContent><p className="text-sm leading-6 text-amber-950/80 dark:text-amber-100/75">{result.finalTakeaway}</p></CardContent></Card></div></> : <Card className="border-amber-200/70 bg-amber-50/60 dark:border-amber-800/70 dark:bg-amber-950/40"><CardHeader><CardTitle className="text-amber-950 dark:text-amber-100">A question to explore</CardTitle></CardHeader><CardContent><p className="text-sm leading-6 text-amber-950/80 dark:text-amber-100/75">{result.reflectionQuestion}</p><form onSubmit={sendFollowUp} className="mt-4 space-y-3"><Textarea value={followUp} onChange={(event) => setFollowUp(event.target.value)} maxLength={2000} required placeholder="Write your response..." className="min-h-28 border-amber-300/70 bg-white/70 dark:border-amber-800 dark:bg-amber-950/50" /><Button type="submit" disabled={loading || !followUp.trim()} className="bg-amber-600 text-white hover:bg-amber-500">{loading ? <Loader2 className="size-4 animate-spin" /> : null}{loading ? "Thinking..." : "Send"}</Button></form></CardContent></Card>}
       <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-emerald-100/55"><ShieldCheck className="size-4" />This is a private reflection tool, not medical advice or a diagnosis.</p>
     </div>;
   }
